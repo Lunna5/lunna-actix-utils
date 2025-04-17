@@ -9,7 +9,7 @@ authors = ["Lunna <contact@lunna.dev>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/Lunna5/lunna-actix-utils"
-repository = "git@github.com:Lunna5/lunna-actix-utils.git"
+repository = "https://github.com/Lunna5/lunna-actix-utils.git"
 
 [dependencies]
 validator = { version = "0.20.0", features = ["derive"] }
