@@ -16,3 +16,7 @@
 //! - [`extractors`] — Request extractors with extra behavior like input validation.
 
 pub mod extractors;
+
+pub mod auth;
+
+pub mod util;
