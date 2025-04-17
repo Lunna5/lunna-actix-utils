@@ -8,7 +8,7 @@
 //!
 //! # Features
 //!
-//! - Custom extractors (e.g. [`ValidatedJson`] for automatic validation of JSON payloads)
+//! - Custom extractors (e.g. [`extractors::validated_json::ValidatedJson`] for automatic validation of JSON payloads)
 //! - Small utilities to make working with Actix Web smoother
 //!
 //! # Modules
