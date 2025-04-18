@@ -1,0 +1,18 @@
+[package]
+name = "test-server"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+lunna_actix_utils = { path = ".."}
+validator.workspace = true
+tokio.workspace = true
+actix-web.workspace = true
+serde.workspace = true
+strum.workspace = true
+serde_json.workspace = true
+argon2.workspace = true
+thiserror.workspace = true
+jsonwebtoken.workspace = true
+tokio-macros.workspace = true

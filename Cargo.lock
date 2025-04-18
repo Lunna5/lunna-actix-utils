@@ -1415,6 +1415,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "test-server"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "argon2",
+ "jsonwebtoken",
+ "lunna_actix_utils",
+ "serde",
+ "serde_json",
+ "strum",
+ "thiserror",
+ "tokio",
+ "tokio-macros",
+ "validator",
+]
+
+[[package]]
 name = "thiserror"
 version = "2.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
