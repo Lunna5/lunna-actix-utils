@@ -17,7 +17,7 @@ use validator::Validate;
 /// use actix_web::{post, web, App, HttpServer};
 /// use serde::Deserialize;
 /// use validator::Validate;
-/// use luna_actix_utils::extractors::validated_json::ValidatedJson;
+/// use lunna_actix_utils::extractors::validated_json::ValidatedJson;
 ///
 /// #[derive(Debug, Deserialize, Validate)]
 /// struct MyPayload {
