@@ -11,6 +11,10 @@ readme = "README.md"
 homepage = "https://github.com/Lunna5/lunna-actix-utils"
 repository = "https://github.com/Lunna5/lunna-actix-utils.git"
 
+[features]
+sql = ["sea-orm"]
+auth = []
+
 [dependencies]
 validator.workspace = true
 tokio.workspace = true
@@ -21,6 +25,9 @@ serde_json.workspace = true
 argon2.workspace = true
 thiserror.workspace = true
 jsonwebtoken.workspace = true
+utoipa.workspace = true
+sea-orm = { workspace = true, optional = true }
+async-trait.workspace = true
 
 [lib]
 name = "lunna_actix_utils"
@@ -46,3 +53,14 @@ argon2 = "0.5.3"
 thiserror = "2.0.12"
 jsonwebtoken = "9.3.1"
 tokio-macros = "2.5.0"
+utoipa = { version = "5.3.1" }
+utoipa-swagger-ui = { version = "9.0.1", features = ["actix-web"] }
+sea-orm = { version = "1.1.10", features = [
+    "sqlx-mysql",
+    "runtime-tokio-rustls",
+    "macros",
+] }
+dotenvy = "0.15.7"
+env_logger = "0.11.6"
+log = "0.4.25"
+async-trait = "0.1.88"
