@@ -1,6 +1,6 @@
 [package]
 name = "lunna_actix_utils"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 description = """
 This crate is intended to be a collection of utils for my projects that uses actix as web "framework"
