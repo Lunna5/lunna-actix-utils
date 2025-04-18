@@ -204,8 +204,8 @@ dn/RsYEONbwQSjIfMPkvxF+8HQ==
         let result = service.verify_token::<SimpleUser>(&token);
 
         match result {
-            Ok(token) => {}
             Err(e) => panic!("{:?}", e),
+            Ok(_) => {},
         }
     }
 }
