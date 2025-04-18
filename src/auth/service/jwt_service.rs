@@ -203,9 +203,6 @@ dn/RsYEONbwQSjIfMPkvxF+8HQ==
 
         let result = service.verify_token::<SimpleUser>(&token);
 
-        match result {
-            Err(e) => panic!("{:?}", e),
-            Ok(_) => {},
-        }
+        if let Err(e) = result { panic!("{:?}", e) }
     }
 }
