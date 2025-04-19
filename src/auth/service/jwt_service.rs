@@ -1,23 +1,23 @@
 use crate::auth::error::AuthError;
 use crate::auth::error::AuthError::NoPrivateKey;
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use chrono::Utc;
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use std::time::{Duration, SystemTime};
 
 pub struct JwtService {
     private_key: Option<String>,
     public_key: String,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 #[serde(bound(deserialize = "T: DeserializeOwned", serialize = "T: Serialize"))] // Add serde bounds
 pub struct JwtDataContainer<T>
 where
     T: Serialize + DeserializeOwned,
 {
-    data: T,
-    exp: i64,
+    pub data: T,
+    exp: u64,
 }
 
 impl JwtService {
@@ -36,14 +36,11 @@ impl JwtService {
         }
     }
 
-    pub fn generate_token<T>(&self, data: T, duration: Duration) -> Result<String, AuthError>
+    pub fn generate_token<T>(&self, data: T, until: u64) -> Result<String, AuthError>
     where
         T: Serialize + DeserializeOwned,
     {
-        self.generate_token_with_data_container(JwtDataContainer {
-            data,
-            exp: get_current_time() + duration.as_secs() as i64,
-        })
+        self.generate_token_with_data_container(JwtDataContainer { data, exp: until })
     }
 
     pub fn generate_token_with_data_container<T>(
@@ -72,7 +69,7 @@ impl JwtService {
 
     pub fn verify_token<T>(&self, token: &str) -> Result<JwtDataContainer<T>, AuthError>
     where
-        T: Serialize + DeserializeOwned,
+        T: Serialize + DeserializeOwned + Send + Sync,
     {
         let validation = Validation::new(Algorithm::RS256);
         let token_data = decode::<JwtDataContainer<T>>(
@@ -81,11 +78,11 @@ impl JwtService {
                 .expect("An error occurred while building RSA key"),
             &validation,
         )
-        .expect("Error occurred while decoding token");
-
-        if token_data.claims.exp == 0 {
-            return Ok(token_data.claims);
-        }
+        .map_err(|e| match e.kind() {
+            jsonwebtoken::errors::ErrorKind::InvalidToken => AuthError::InvalidToken,
+            jsonwebtoken::errors::ErrorKind::ExpiredSignature => AuthError::TokenExpired,
+            _ => AuthError::InvalidToken,
+        })?;
 
         if token_data.claims.exp < get_current_time() {
             return Err(AuthError::TokenExpired);
@@ -95,15 +92,14 @@ impl JwtService {
     }
 }
 
-pub fn get_current_time() -> i64 {
-    SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64
+pub fn get_current_time() -> u64 {
+    Utc::now().timestamp().max(0) as u64
 }
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
+
     use super::*;
     const RSA_PUBLIC_TEST_KEY: &str = r#"-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu1SU1LfVLPHCozMxH2Mo
@@ -154,8 +150,8 @@ dn/RsYEONbwQSjIfMPkvxF+8HQ==
     #[test]
     fn test_token_generation() {
         let example_user: SimpleUser = SimpleUser {
-            username: "Angelillo15".to_string(),
-            email: "contact@angelillo15.es".to_string(),
+            username: "Lunna".to_string(),
+            email: "hi@lunna.dev".to_string(),
             age: 17,
         };
 
@@ -164,7 +160,10 @@ dn/RsYEONbwQSjIfMPkvxF+8HQ==
             String::from(RSA_PUBLIC_TEST_KEY),
         );
 
-        match service.generate_token(example_user, Duration::from_secs(5)) {
+        match service.generate_token(
+            example_user,
+            get_current_time() + Duration::from_secs(10).as_secs(),
+        ) {
             Ok(token) => {
                 println!("Token generated: {:?}", token);
             }
@@ -187,8 +186,8 @@ dn/RsYEONbwQSjIfMPkvxF+8HQ==
     #[test]
     fn valid_token_verification() {
         let example_user: SimpleUser = SimpleUser {
-            username: "Angelillo15".to_string(),
-            email: "contact@angelillo15.es".to_string(),
+            username: "Lunna".to_string(),
+            email: "hi@lunna.dev".to_string(),
             age: 17,
         };
 
@@ -198,11 +197,17 @@ dn/RsYEONbwQSjIfMPkvxF+8HQ==
         );
 
         let token = service
-            .generate_token(example_user, Duration::from_secs(5))
+            .generate_token(
+                example_user,
+                get_current_time() + Duration::from_secs(5).as_secs(),
+            )
             .expect("Token generated");
 
         let result = service.verify_token::<SimpleUser>(&token);
 
-        if let Err(e) = result { panic!("{:?}", e) }
+        match result {
+            Ok(_) => {}
+            Err(e) => panic!("{:?}", e),
+        }
     }
 }
