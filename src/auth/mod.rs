@@ -3,5 +3,5 @@ pub mod service;
 pub mod request;
 pub mod response;
 
-#[cfg(feature = "sql")]
+#[cfg(any(feature = "sql", doc))]
 pub mod sql;

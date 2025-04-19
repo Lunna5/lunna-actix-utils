@@ -17,7 +17,7 @@
 
 pub mod extractors;
 
-#[cfg(feature = "auth")]
+#[cfg(any(feature = "auth", doc))]
 pub mod auth;
 
 pub mod util;
